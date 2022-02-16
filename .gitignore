@@ -1,0 +1,11 @@
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env
+
+# JetBrains system info
+/.idea
+
+src/id_rsa_priv.pem
+src/id_rsa_pub.pem
