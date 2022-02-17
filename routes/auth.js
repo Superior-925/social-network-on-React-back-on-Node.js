@@ -28,7 +28,7 @@ const issueTokensPair = async (userId) => {
 };
 
 router.post('/refresh', async (req, res, next) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.body.refreshToken;
 
   try {
     const refreshTokenData = await RefreshToken.findOne({ token: refreshToken });
