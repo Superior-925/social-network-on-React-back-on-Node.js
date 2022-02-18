@@ -6,7 +6,7 @@ const passport = require('passport');
 const Avatar = mongoose.model('Avatar');
 const fs = require('fs');
 
-router.post('/avatar',
+router.post('/avatar', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
             const avatar = await Avatar.findOne({userId: req.body.userId});
@@ -50,7 +50,7 @@ router.post('/avatar',
         }
     });
 
-router.get('/avatar/:id',
+router.get('/avatar/:id', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
             const avatar = await Avatar.findOne({userId: req.params.id});
