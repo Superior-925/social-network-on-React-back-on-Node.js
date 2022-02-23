@@ -9,5 +9,6 @@ router.use('/', require('./auth'));
 router.use('/', require('./refresh-tokens'));
 router.use('/', require('./post'));
 router.use('/', require('./avatar'));
+router.use('/', require('./friends'));
 
 module.exports = router;
