@@ -37,11 +37,31 @@ router.get('/post/:id', passport.authenticate('jwt', { session: false }),
 router.delete('/post/:id', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
-            const postId = req.params.id;
             const foundPost = await Post.findById(req.params.id).catch((err) => console.log(err));
             if (!foundPost) return res.status(404).json({ message: 'Post not found!' });
             const deletedPost = await Post.findByIdAndDelete(req.params.id);
             res.status(200).send(deletedPost);
+        } catch (error) {
+            res.status(500).send({ message: error.message });
+        }
+    });
+
+router.patch('/post', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+
+            const foundPost = await Post.findById(req.body.postId);
+
+            if (!foundPost) return res.status(404).json({ message: 'Post not found!' });
+
+            foundPost.postText = req.body.postText;
+
+            foundPost.save(function (err, result) {
+                if (!err) {
+                    res.status(200).send(result);
+                }
+            });
+
         } catch (error) {
             res.status(500).send({ message: error.message });
         }
