@@ -11,3 +11,6 @@ src/id_rsa_priv.pem
 src/id_rsa_pub.pem
 src/assets
 
+src/id_rsa_priv.pem
+src/id_rsa_pub.pem
+
