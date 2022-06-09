@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const passport = require('passport');
+const { body, param, validationResult } = require('express-validator');
 // const Post = mongoose.model('Post');
 // const User = mongoose.model('User');
 const Avatar = mongoose.model('Avatar');
+const User = mongoose.model('User');
 const fs = require('fs');
 
 router.post('/avatar', passport.authenticate('jwt', { session: false }),
@@ -13,9 +15,9 @@ router.post('/avatar', passport.authenticate('jwt', { session: false }),
             if (avatar != null) {
                 const base64String = req.body.file;
                 const base64Image = base64String.split(';base64,').pop();
-                await fs.writeFile(`./assets/avatars/${avatar.imageName}`, base64Image, {encoding: 'base64'}, async function(err) {
+                await fs.writeFile(`src/assets/avatars/${avatar.imageName}`, base64Image, {encoding: 'base64'}, async function(err) {
                     if (!err) {
-                        await fs.readFile(`./assets/avatars/${avatar.imageName}`, {encoding: 'base64'}, function(err,data){
+                        await fs.readFile(`src/assets/avatars/${avatar.imageName}`, {encoding: 'base64'}, function(err,data){
                             if (!err) {
                                 res.status(200).send(data);
                             } else {
@@ -28,14 +30,14 @@ router.post('/avatar', passport.authenticate('jwt', { session: false }),
             if (avatar == null) {
                 const base64String = req.body.file;
                 const base64Image = base64String.split(';base64,').pop();
-                await fs.writeFile(`./assets/avatars/${req.body.userId}.png`, base64Image, {encoding: 'base64'}, async function(err) {
+                await fs.writeFile(`src/assets/avatars/${req.body.userId}.png`, base64Image, {encoding: 'base64'}, async function(err) {
                     if (!err) {
                         const newAvatar = new Avatar({
                             imageName: `${req.body.userId}.png`,
                             userId: `${req.body.userId}`
                         });
                         await newAvatar.save();
-                        await fs.readFile(`./assets/avatars/${newAvatar.imageName}`, {encoding: 'base64'}, function(err,data){
+                        await fs.readFile(`src/assets/avatars/${newAvatar.imageName}`, {encoding: 'base64'}, function(err,data){
                             if (!err) {
                                 res.status(200).send(data);
                             } else {
@@ -55,7 +57,7 @@ router.get('/avatar/:id', passport.authenticate('jwt', { session: false }),
         try {
             const avatar = await Avatar.findOne({userId: req.params.id});
             if (avatar != null) {
-                await fs.readFile(`./assets/avatars/${avatar.imageName}`, {encoding: 'base64'}, function(err,data){
+                await fs.readFile(`src/assets/avatars/${avatar.imageName}`, {encoding: 'base64'}, function(err,data){
                     if (!err) {
                         res.status(200).send(data);
                     } else {
@@ -64,8 +66,44 @@ router.get('/avatar/:id', passport.authenticate('jwt', { session: false }),
                 });
             }
             // if (avatar == null) {
-            //     res.status(404).json({ message: 'Avatar not found!' });
+            //     res.status(404).json({ message: 'Profile not found!' });
             // }
+        } catch (error) {
+            res.status(500).send({ message: error.message });
+        }
+    });
+
+router.post('/nickname', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+            if ((req.body.nickname.trim().length < 1)) {
+                return res.status(406).json({ message: `Nickname can't by empty!`});
+            }
+            const foundUser = await User.findById(req.body.userId).catch((err) => console.log(err));
+            if (!foundUser) return res.status(404).json({ message: 'User not found!' });
+            const foundNickname = await User.find({ nickname : req.body.nickname}).catch((err) => console.log(err));
+            if (foundNickname.length) {
+                return res.status(406).json({ message: `Nickname already exist!`});
+            }
+            foundUser.nickname = req.body.nickname;
+            foundUser.save(function (err, result) {
+                if (!err) {
+                    res.status(200).send(result);
+                }
+            });
+
+        } catch (error) {
+            res.status(500).send({ message: error.message });
+        }
+    });
+
+router.get('/nickname/:id', passport.authenticate('jwt', { session: false }),
+    param('id').notEmpty().isString().withMessage('Must not be an empty string'),
+    async (req, res) => {
+        try {
+            const foundUser = await User.findById(req.params.id);
+            if (!foundUser) return res.status(404).json({ message: 'User not found!' });
+            res.status(200).send(foundUser);
         } catch (error) {
             res.status(500).send({ message: error.message });
         }

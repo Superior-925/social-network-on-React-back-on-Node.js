@@ -58,7 +58,7 @@ router.post('/refresh', async (req, res, next) => {
 // Validate an existing user and issue a JWT
 router.post('/login', async (req, res, next) => {
   try {
-    if ((req.body.data.email.trim() === '') || req.body.data.password.trim() === '') {
+    if ((req.body.data.email.trim().length < 1) || req.body.data.password.trim().length < 1) {
       return res.status(406).json({ message: `Email or password can't by empty!`});
     }
 
@@ -90,7 +90,7 @@ router.post('/login', async (req, res, next) => {
 router.post('/signup', async (req, res, next) => {
   try {
 
-    if ((req.body.data.email.trim() === '') || (req.body.data.password.trim() === '') || (req.body.data.nickname.trim() === '')) {
+    if ((req.body.data.email.trim().length < 1) || (req.body.data.password.trim().length < 1) || (req.body.data.nickname.trim().length < 1)) {
       return res.status(406).json({ message: `Email or password or nickname can't by empty!`});
     }
 

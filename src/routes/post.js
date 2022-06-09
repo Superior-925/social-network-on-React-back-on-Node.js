@@ -13,8 +13,8 @@ router.post('/post', passport.authenticate('jwt', { session: false }),
                 postText: req.body.post,
                 userId: foundUser._id
             });
-
-            const post = await newPost.save().catch((err) => console.log(err));
+            await newPost.save();
+            const post = await Post.findById(newPost._id).populate('userId');
             res.status(200).send(post);
         } catch (error) {
             res.status(500).send({ message: error.message });
@@ -27,7 +27,7 @@ router.get('/post/:id', passport.authenticate('jwt', { session: false }),
             const userId = req.params.id;
             const foundUser = await User.findById(req.params.id).catch((err) => console.log(err));
             if (!foundUser) return res.status(404).json({ message: 'User not found!' });
-            const posts = await Post.find({ userId : userId});
+            const posts = await Post.find({ userId : userId}).populate('userId');
             res.status(200).send(posts);
         } catch (error) {
             res.status(500).send({ message: error.message });

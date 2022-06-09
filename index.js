@@ -17,19 +17,21 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 // Create the Express application
-var app = express();
+let app = express();
 
 // Configures the database and opens a global connection that can be used in any module with `mongoose.connection`
-require('./config/database');
+require('./src/config/database');
 
 // Must first load the models
-require('./models/user');
-require('./models/refreshToken');
-require('./models/post');
-require('./models/avatar');
+require('./src/models/user');
+require('./src/models/refreshToken');
+require('./src/models/post');
+require('./src/models/avatar');
+require('./src/models/friend');
+require('./src/models/candidate');
 
 // Pass the global passport object into the configuration function
-require('./config/passport')(passport);
+require('./src/config/passport')(passport);
 
 // This will initialize the passport object on every request
 app.use(passport.initialize());
@@ -47,7 +49,7 @@ app.use(cors());
  */
 
 // Imports all of the routes from ./routes/index.js
-app.use(require('./routes'));
+app.use(require('./src/routes'));
 
 app.use(function (req, res) {
   res.status(404).send({ message: 'Opppps.... wrong way!' });
