@@ -41,6 +41,11 @@ router.post('/avatar', passport.authenticate('jwt', {session: false}),
                             imageName: `${req.body.userId}.png`,
                             userId: `${req.body.userId}`
                         });
+
+                        const user = await User.findById(req.body.userId);
+                        user.avatar = true;
+                        await user.save();
+
                         await newAvatar.save();
                         await fs.readFile(`src/assets/avatars/${newAvatar.imageName}`, {encoding: 'base64'}, function (err, data) {
                             if (!err) {
@@ -61,13 +66,15 @@ router.get('/avatar/:id', passport.authenticate('jwt', {session: false}),
     param('id', `Parameter 'id' must not be an empty string`).notEmpty(),
     async (req, res) => {
         try {
+            console.log("Id for avatar" + req.params.id);
+
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({errors: errors.array()});
             }
 
             const avatar = await Avatar.findOne({userId: req.params.id});
-            if (avatar != null) {
+            if (avatar !== null) {
                 await fs.readFile(`src/assets/avatars/${avatar.imageName}`, {encoding: 'base64'}, function (err, data) {
                     if (!err) {
                         res.status(200).send(data);
@@ -75,6 +82,9 @@ router.get('/avatar/:id', passport.authenticate('jwt', {session: false}),
                         res.status(500).send({message: err.message});
                     }
                 });
+            }
+            if (avatar === null) {
+                res.status(204).send({message: "Image not found"});
             }
         } catch (error) {
             res.status(500).send({message: error.message});

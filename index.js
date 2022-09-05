@@ -41,6 +41,9 @@ app.use(bodyParser.json({limit: '50mb'}));
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({limit: '50mb', extended: false }));
 
+//file access
+app.use(express.static(__dirname + "/src/assets/avatars"));
+
 // Allows our Angular application to make HTTP requests to Express application
 app.use(cors());
 
